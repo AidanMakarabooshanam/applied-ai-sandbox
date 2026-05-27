@@ -24,6 +24,9 @@
       <div class="note">
         <h3>{{ note.title }}</h3>
         <p>{{ note.body }}</p>
+        <form method="POST" action="{{ url_for('delete_note', idx=loop.index0) }}" style="display:inline;">
+          <button type="submit">Delete</button>
+        </form>
       </div>
     {% endfor %}
   {% else %}
