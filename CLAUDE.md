@@ -46,3 +46,8 @@ pytest tests/test_task_01.py
 - Run `pytest` after each substantive change.
 - If Claude proposes editing a test to "make it pass," push back. The
   tests are the spec.
+
+## Auth (scope rules)
+- This app is a simple Flask sandbox using in-memory notes only.
+- Do NOT assume or add a database unless explicitly required by a task.
+- Do NOT expand authentication beyond what the task asks for.
