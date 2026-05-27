@@ -10,6 +10,10 @@
     .note { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
     .note h3 { margin: 0 0 0.5rem; }
     a.btn { display: inline-block; background: #1a2540; color: #fff; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; }
+    .filters { margin: 1rem 0; }
+    .filters a { margin-right: 0.5rem; padding: 0.3rem 0.75rem; border-radius: 6px; text-decoration: none; color: #1a2540; border: 1px solid #1a2540; }
+    .filters a.active { background: #1a2540; color: #fff; }
+    .star-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 0 0.25rem; line-height: 1; }
   </style>
 </head>
 <body>
@@ -18,19 +22,29 @@
 
   <a class="btn" href="{{ url_for('new_note') }}">+ New note</a>
 
-  <h2 style="margin-top: 2rem;">Your notes ({{ notes|length }})</h2>
+  <div class="filters">
+    <a href="{{ url_for('home') }}" class="{{ 'active' if not starred_only else '' }}">All</a>
+    <a href="{{ url_for('home', starred='true') }}" class="{{ 'active' if starred_only else '' }}">&#9733; Starred</a>
+  </div>
+
+  <h2 style="margin-top: 1rem;">{{ 'Starred notes' if starred_only else 'Your notes' }} ({{ notes|length }})</h2>
   {% if notes %}
-    {% for note in notes %}
+    {% for idx, note in notes %}
       <div class="note">
-        <h3>{{ note.title }}</h3>
+        <h3>
+          <form method="POST" action="{{ url_for('star_note', idx=idx) }}" style="display:inline;">
+            <button type="submit" class="star-btn" title="Toggle star">{{ '&#9733;' if note.starred else '&#9734;' }}</button>
+          </form>
+          {{ note.title }}
+        </h3>
         <p>{{ note.body }}</p>
-        <form method="POST" action="{{ url_for('delete_note', idx=loop.index0) }}" style="display:inline;">
+        <form method="POST" action="{{ url_for('delete_note', idx=idx) }}" style="display:inline;">
           <button type="submit">Delete</button>
         </form>
       </div>
     {% endfor %}
   {% else %}
-    <p>No notes yet.</p>
+    <p>{{ 'No starred notes.' if starred_only else 'No notes yet.' }}</p>
   {% endif %}
 </body>
 </html>

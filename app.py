@@ -18,7 +18,12 @@ def create_app() -> Flask:
 
     @app.route("/")
     def home():
-        return render_template("home.html", notes=app.notes)
+        starred_only = request.args.get("starred") == "true"
+        indexed_notes = [
+            (idx, note) for idx, note in enumerate(app.notes)
+            if not starred_only or note.get("starred")
+        ]
+        return render_template("home.html", notes=indexed_notes, starred_only=starred_only)
 
     @app.route("/notes/new", methods=["GET", "POST"])
     def new_note():
@@ -32,9 +37,17 @@ def create_app() -> Flask:
                 errors["body"] = "Body is required"
             if errors:
                 return render_template("new_note.html", title=title, body=body, errors=errors)
-            app.notes.append({"title": title, "body": body, "tags": []})
+            app.notes.append({"title": title, "body": body, "tags": [], "starred": False})
             return redirect(url_for("home"))
         return render_template("new_note.html")
+
+    @app.route("/notes/<int:idx>/star", methods=["POST"])
+    def star_note(idx):
+        if idx < 0 or idx >= len(app.notes):
+            abort(404)
+        note = app.notes[idx]
+        note["starred"] = not note.get("starred", False)
+        return redirect(url_for("home"))
 
     @app.route("/notes/<int:idx>/delete", methods=["POST"])
     def delete_note(idx):
